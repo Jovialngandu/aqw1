@@ -6,7 +6,8 @@
       "@services/*": ["./src/services/*"],
       "@components/*": ["./src/components/*"],
       "@features/*": ["./src/features/*"],
-      "@db/*": ["./src/db/*"]
+      "@db/*": ["./src/db/*"],
+	  "@utils/*": ["./src/utils/*"]
     }
   }
 }
