@@ -10,18 +10,21 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons'; 
 import { fetchFeed } from '@store';
-import ArticleCard from './ArticleCard';
-import SearchBar from './SearchBar';
-
+import ArticleCard from './partials/ArticleCard';
+import SearchBar from './partials/SearchBar';
+import OfflinePlaceholder from './partials/OfflinePlaceholder';
+import { useNetInfo } from "@react-native-community/netinfo";
 const FeedScreen = ({ navigation }) => {
+  const netInfo = useNetInfo();	
   const flatListRef = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [serverError, setServerError] = useState(true);
   
   const dispatch = useDispatch();
   // On récupère uniquement les items du feed
-  const { items, hasMore, isFeedLoading, nextCursor } = useSelector((state) => state.articles.feed);
+  const { items, hasMore, isFeedLoading, nextCursor,error } = useSelector((state) => state.articles.feed);
 
   useEffect(() => {
     dispatch(fetchFeed({ cursor: null, limit: 10 }));
@@ -36,6 +39,7 @@ const FeedScreen = ({ navigation }) => {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
   };
 
+  
   const loadMore = useCallback(() => {
     if (hasMore && !isFeedLoading) {
       dispatch(fetchFeed({ cursor: nextCursor, limit: 10 }));
@@ -47,6 +51,15 @@ const FeedScreen = ({ navigation }) => {
     await dispatch(fetchFeed({ cursor: null, limit: 10 }));
     setRefreshing(false);
   }, [dispatch]);
+
+
+  if (netInfo.isConnected === false ) {
+    return <OfflinePlaceholder onRetry={handleRefresh} />;
+  }
+
+//   if ( !isFeedLoading && error) {
+//     return <OfflinePlaceholder message="Le serveur ne répond pas. Veuillez réessayer plus tard." onRetry={handleRefresh} />;
+//   }
 
   const uniqueArticles = items.filter((article, index, self) =>
 	index === self.findIndex((t) => (
