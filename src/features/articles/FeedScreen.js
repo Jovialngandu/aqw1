@@ -54,7 +54,7 @@ const FeedScreen = ({ navigation }) => {
 
 
   if (netInfo.isConnected === false ) {
-    return <OfflinePlaceholder onRetry={handleRefresh} />;
+    return <OfflinePlaceholder onRetry={handleRefresh} message="Vérifiez votre connexion internet" />;
   }
 
 //   if ( !isFeedLoading && error) {
