@@ -8,7 +8,7 @@ export const fetchFeed = createAsyncThunk(
   'articles/fetchFeed',
   async ({ cursor = null, limit = 10 }, { rejectWithValue }) => {
     try {
-      const result = await articlesService.getFeed(cursor, limit);
+      const result = await articlesService.getAll(cursor, limit);
       return result;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
