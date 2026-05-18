@@ -82,9 +82,9 @@ const FeedScreen = ({ navigation }) => {
 		setRefreshing(false);
 	}, [dispatch]);
 
-	const handleArticlePress = (articleId) => {
-		navigation.navigate('article-detail', { articleId });
-	};
+	// const handleArticlePress = (articleId) => {
+	// 	navigation.navigate('article-detail', { articleId });
+	// };
 
 	// filtrage des articles pour éviter les doublons et appliquer les filtres de source et de recherche
 	const uniqueArticles = items.filter((article, index, self) => 
