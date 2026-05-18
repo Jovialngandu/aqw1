@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@store';
 import RootNavigator from './RootNavigator';
+import FlashMessage from "react-native-flash-message";
 
 
 const LoadingView = () => (
@@ -14,13 +15,14 @@ const LoadingView = () => (
 
 const App = () => {
 
-  return (
-    <Provider store={store}>
-      <PersistGate loading={<LoadingView />} persistor={persistor}>
-        <RootNavigator />
-      </PersistGate>
-    </Provider>
-  );
+	return (
+		<Provider store={store}>
+			<FlashMessage position="top" />
+			<PersistGate loading={<LoadingView />} persistor={persistor}>
+			<RootNavigator />
+			</PersistGate>
+		</Provider>
+	);
 };
 
 const styles = StyleSheet.create({

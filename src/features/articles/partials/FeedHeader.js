@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
 	},
 
 	logoIcon: {
-		backgroundColor: '#0A66C2', // Le bleu LinkedIn de ton app
+		backgroundColor: '#000000', // Le bleu LinkedIn de ton app
 		padding: 6,
 		borderRadius: 8,
 		marginRight: 10,
