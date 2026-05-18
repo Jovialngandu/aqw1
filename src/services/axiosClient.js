@@ -1,8 +1,33 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.187.211:8000';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 const API_TIMEOUT = parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '10000', 10);
+
+// Abstraction pour gérer la compatibilité Web / Mobile nativement
+const storage = {
+  getItem: async (key) => {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(key);
+    }
+    return await SecureStore.getItemAsync(key);
+  },
+  setItem: async (key, value) => {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(key, value);
+    } else {
+      await SecureStore.setItemAsync(key, value);
+    }
+  },
+  removeItem: async (key) => {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(key);
+    } else {
+      await SecureStore.deleteItemAsync(key);
+    }
+  }
+};
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -14,7 +39,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync('access_token');
+    const token = await storage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,12 +53,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Si erreur 401 et qu'on n'a pas déjà essayé de rafraîchir
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = await SecureStore.getItemAsync('refresh_token');
+        const refreshToken = await storage.getItem('refresh_token');
         
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {}, {
@@ -41,14 +65,14 @@ apiClient.interceptors.response.use(
           });
 
           const { access_token } = response.data;
-          await SecureStore.setItemAsync('access_token', access_token);
+          await storage.setItem('access_token', access_token);
 
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
-        await SecureStore.deleteItemAsync('access_token');
-        await SecureStore.deleteItemAsync('refresh_token');
+        await storage.removeItem('access_token');
+        await storage.removeItem('refresh_token');
      
         console.error('Session expirée, merci de vous reconnecter');
         return Promise.reject(refreshError);
