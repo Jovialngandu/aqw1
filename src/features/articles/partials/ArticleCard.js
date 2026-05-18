@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Share, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { formatRelativeTime } from '@utils/index';
+import { showMessage } from "react-native-flash-message";
 
 const ArticleCard = ({ article, onPress, isDarkMode }) => {
 	const [imageLoaded, setImageLoaded] = useState(false);
@@ -15,7 +16,17 @@ const ArticleCard = ({ article, onPress, isDarkMode }) => {
 				await navigator.share({ title: article.title, text: article.title, url: article.url });
 			} else {
 				await navigator.clipboard.writeText(shareMessage);
-				alert('Lien de l\'article copié dans le presse-papiers !');
+				showMessage({
+					message: "Lien copié !",
+					description: "Le lien de l'article est dans votre presse-papiers.",
+					type: "success", // gère automatiquement la couleur verte pro
+					backgroundColor: isDarkMode ? "#2C2C2E" : "#0A66C2", // Un gris sombre ou ton bleu
+					color: "#ffffff",
+					duration: 2000, // Disparaît tout seul après 2 secondes					
+					floating: true, 
+					style: styles.messageStyle,
+					titleStyle:styles.messageTitleStyle
+				});
 			}
 		} else {
 			await Share.share({ message: shareMessage });
@@ -46,7 +57,7 @@ const ArticleCard = ({ article, onPress, isDarkMode }) => {
 
 		{article.content && isExpanded && (
 		<View style={styles.contentContainer}>
-			<Text style={[styles.content, isDarkMode && styles.darkText]} onPress={onPress}>
+			<Text style={[styles.content, isDarkMode && styles.darkText]}>
 			{article.content}
 			</Text>
 		</View>
@@ -116,6 +127,23 @@ const styles = StyleSheet.create({
 	footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 },
 	readMore: { color: '#0A66C2', fontWeight: '600', fontSize: 13 },
 	shareBtn: { padding: 4 },
+	messageStyle:{
+		alignSelf: 'center', 
+		paddingVertical: 8, 
+		paddingHorizontal: 20,
+		borderRadius: 5, 
+		marginTop: 10,
+		elevation: 4, 
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.15,
+		shadowRadius: 4,
+	},
+	messageTitleStyle: {
+	fontSize: 13,
+	fontWeight: "600",
+	textAlign: "center",
+	}
 });
 
 export default ArticleCard;
